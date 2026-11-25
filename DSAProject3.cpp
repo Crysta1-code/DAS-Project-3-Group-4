@@ -1,4 +1,4 @@
-/ DSAProject3.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// DSAProject3.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
 #include <vector>
@@ -87,7 +87,7 @@ int main()
 				std::cout << "Data Set Generated" << std::endl;
 				std::cout << std::endl;
 			}
-			else if (option == 9)
+			else if (option2 == 9)
 			{
 				std::cout << "No changes made to data set" << std::endl;
 				std::cout << std::endl;
