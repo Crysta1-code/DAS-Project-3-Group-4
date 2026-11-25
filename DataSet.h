@@ -8,13 +8,15 @@ class DataSet
 public:
 
 	//Number generation functions
-	std::vector<int> randomNumbers(int maxNumber);
-	std::vector<int> randomNumbersLarge(int maxNumber);
+	std::vector<int> randomNumbers();
+	std::vector<int> randomNumbersMedium();
+	std::vector<int> randomNumbersLarge();
+	std::vector<int> manyDuplicates();
+	std::vector<int> manyDuplicatesMedium();
+	std::vector<int> manyDuplicatesLarge();
 	std::vector<int> alreadySorted();
 	std::vector<int> reverseSorted();
 	std::vector<int> sameNumber(int userNumber);
-
-	
+	std::vector<int> getDataKey();
 
 };
-
