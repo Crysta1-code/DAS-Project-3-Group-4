@@ -127,7 +127,7 @@ int main()
 			const auto stats = mergeSort(mergeSortData);
 
 			//Compare sorting algorithm to key
-			std::vector<int> dataKey = unsortedData.getDataKey();
+			std::vector<int> dataKey = unsortedData.getDataSet();
 			bool flag = true;
 			for (int i = 0; i < mergeSortData.size(); i++)
 			{
