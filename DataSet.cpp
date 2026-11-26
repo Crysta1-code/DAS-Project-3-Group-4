@@ -138,7 +138,7 @@ std::vector<int> DataSet::alreadySorted()
 	dataSet.clear();
 	sortedDataKey.clear();
 
-	for (int i = 1; i < 2001; i++)
+	for (int i = 1; i < 500001; i++)
 	{
 		dataSet.push_back(i);
 		sortedDataKey.push_back(i);
@@ -154,7 +154,7 @@ std::vector<int> DataSet::reverseSorted()
 	dataSet.clear();
 	sortedDataKey.clear();
 
-	for (int i = 2000; i> 0; i--)
+	for (int i = 500000; i> 0; i--)
 	{
 		dataSet.push_back(i);
 		//std::cout << "Adding data to set: " <<i<<std::endl;
@@ -166,21 +166,10 @@ std::vector<int> DataSet::reverseSorted()
 	return dataSet;
 }
 
-std::vector<int> DataSet::sameNumber(int userNumber)
+
+std::vector<int> DataSet::getDataSet()
 {
-	dataSet.clear();
-	sortedDataKey.clear();
-
-	for (int i = 0; i < 1000; i++)
-	{
-		dataSet.push_back(userNumber);
-		sortedDataKey.push_back(userNumber);
-	}
-
-	sort(sortedDataKey.begin(), sortedDataKey.end());
-
 	return dataSet;
-
 }
 
 std::vector<int> DataSet::getDataKey() 
