@@ -16,7 +16,7 @@ public:
 	std::vector<int> manyDuplicatesLarge();
 	std::vector<int> alreadySorted();
 	std::vector<int> reverseSorted();
-	std::vector<int> sameNumber(int userNumber);
+	std::vector<int> getDataSet();
 	std::vector<int> getDataKey();
-
+	
 };
