@@ -96,17 +96,20 @@ int main()
 		}
 		else if(option==2 && dataSet.size()>1)
 		{
-			const auto stats=quickSortStats(dataSet);
+			std::vector<int> quickSortData;
+			quickSortData = unsortedData.getDataSet();
+		
+			const auto stats=quickSortStats(quickSortData);
 
 			//Compare sorting algorithm to key
 			std::vector<int> dataKey = unsortedData.getDataKey();
 			bool flag = true;
-			for (int i = 0; i < dataSet.size(); i++)
+			for (int i = 0; i < quickSortData.size(); i++)
 			{
-				if (dataSet[i] != dataKey[i])
+				if (quickSortData[i] != dataKey[i])
 					flag = false;
 					
-				//std::cout << dataSet[i] << std::endl; //Testing
+				//std::cout << quickSortData[i] << std::endl; //Testing
 			}
 			if (flag==true)
 				std::cout << "Data sorted successfully using Quick Sort. Number of items sorted: " << dataSet.size() << std::endl;
@@ -118,17 +121,20 @@ int main()
 		}
 		else if (option == 3 && dataSet.size()>1)
 		{
-			const auto stats = mergeSort(dataSet);
+			std::vector<int> mergeSortData;
+			mergeSortData = unsortedData.getDataKey();
+
+			const auto stats = mergeSort(mergeSortData);
 
 			//Compare sorting algorithm to key
 			std::vector<int> dataKey = unsortedData.getDataKey();
 			bool flag = true;
-			for (int i = 0; i < dataSet.size(); i++)
+			for (int i = 0; i < mergeSortData.size(); i++)
 			{
-				if (dataSet[i] != dataKey[i])
+				if (mergeSortData[i] != dataKey[i])
 					flag = false;
 					
-				//std::cout << dataSet[i] << std::endl; //Testing
+				//std::cout << mergeSortData[i] << std::endl; //Testing
 			}
 			if (flag==true)
 				std::cout << "Data sorted successfully using Merge Sort. Number of items sorted: " << dataSet.size() << std::endl;
