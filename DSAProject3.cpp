@@ -122,12 +122,12 @@ int main()
 		else if (option == 3 && dataSet.size()>1)
 		{
 			std::vector<int> mergeSortData;
-			mergeSortData = unsortedData.getDataKey();
+			mergeSortData = unsortedData.getDataSet();
 
 			const auto stats = mergeSort(mergeSortData);
 
 			//Compare sorting algorithm to key
-			std::vector<int> dataKey = unsortedData.getDataSet();
+			std::vector<int> dataKey = unsortedData.getDataKey();
 			bool flag = true;
 			for (int i = 0; i < mergeSortData.size(); i++)
 			{
