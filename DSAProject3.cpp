@@ -1,152 +1,160 @@
-// DSAProject3.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#include <cstdlib>
 #include <iostream>
+#include <limits>
+#include <string>
 #include <vector>
+#include "Benchmark.h"
 #include "DataSet.h"
-#include "MergeSort.h"
-#include "QuickSort.h"
 
-int main()
+namespace {
+
+const std::string kCsvPath = "results.csv";
+const int kDefaultTrials = 5;
+
+int readInt(const std::string& prompt, int low, int high)
 {
-	DataSet unsortedData;
-	std::vector<int> dataSet;
+	while (true)
+	{
+		std::cout << prompt;
+		int value;
+		if (std::cin >> value && value >= low && value <= high)
+			return value;
+		if (std::cin.eof())
+			std::exit(0);
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		std::cout << "Please enter a number from " << low << " to " << high << ".\n";
+	}
+}
+
+void printRunSummary(const std::vector<RunResult>& results)
+{
+	for (const RunResult& r : results)
+	{
+		std::cout << r.algorithm << " trial " << r.trial << ": " << r.timeMs << " ms, "
+			<< r.comparisons << " comparisons, "
+			<< (r.sortedCorrectly ? "sorted correctly" : "NOT sorted correctly") << '\n';
+	}
+}
+
+void saveResults(const std::vector<RunResult>& results, std::vector<RunResult>& sessionResults)
+{
+	sessionResults.insert(sessionResults.end(), results.begin(), results.end());
+	if (appendToCsv(kCsvPath, results))
+		std::cout << "Results appended to " << kCsvPath << "\n\n";
+	else
+		std::cout << "Could not write to " << kCsvPath << "\n\n";
+}
+
+void generateMenu(DataSet& data)
+{
+	std::cout << "\nSelect type of data set:\n";
+	std::cout << "1: Random numbers\n";
+	std::cout << "2: Random numbers with many duplicates\n";
+	std::cout << "3: Ascending data\n";
+	std::cout << "4: Descending data\n";
+	std::cout << "0: Keep current data set\n";
+	const int type = readInt("Enter choice: ", 0, 4);
+	if (type == 0)
+	{
+		std::cout << "No changes made to data set\n\n";
+		return;
+	}
+
+	std::cout << "\nSelect size:\n";
+	std::cout << "1: 100,000\n2: 250,000\n3: 500,000\n";
+	const int sizeChoice = readInt("Enter choice: ", 1, 3);
+	const int sizes[] = { 100000, 250000, 500000 };
+	const DataType types[] = { DataType::Random, DataType::ManyDuplicates, DataType::Ascending, DataType::Descending };
+
+	data.generate(types[type - 1], sizes[sizeChoice - 1]);
+	std::cout << "Data Set Generated: " << DataSet::typeName(data.getType())
+		<< ", " << data.getSize() << " elements\n\n";
+}
+
+void runFullBenchmark(DataSet& data, std::vector<RunResult>& sessionResults)
+{
+	const int trials = readInt("Trials per algorithm per data set (1-20): ", 1, 20);
+	const DataType types[] = { DataType::Random, DataType::ManyDuplicates, DataType::Ascending, DataType::Descending };
+	const int sizes[] = { 100000, 250000, 500000 };
+
+	std::vector<RunResult> all;
+	for (DataType type : types)
+	{
+		for (int size : sizes)
+		{
+			std::cout << "Running " << DataSet::typeName(type) << ", " << size << " elements...\n";
+			data.generate(type, size);
+			auto merge = runTrials(Algorithm::MergeSort, data, trials);
+			auto quick = runTrials(Algorithm::QuickSort, data, trials);
+			all.insert(all.end(), merge.begin(), merge.end());
+			all.insert(all.end(), quick.begin(), quick.end());
+		}
+	}
+	std::cout << '\n';
+	printResultsTable(all);
+	saveResults(all, sessionResults);
+}
+
+} // namespace
+
+int main() {
+	DataSet data;
+	std::vector<RunResult> sessionResults;
 
 	while (true)
 	{
-		std::cout << "Select an option:" << std::endl;
-		std::cout << "1: Generate New Data Set" << std::endl;
-		std::cout << "2: Sort using QuickSort" << std::endl;
-		std::cout << "3: Sort using MergeSort" << std::endl;
-		std::cout << "0: Exit" << std::endl;
+		std::cout << "================================\n";
+		std::cout << " SORTING PERFORMANCE ANALYZER\n";
+		std::cout << "================================\n";
+		std::cout << "1. Generate Dataset\n";
+		std::cout << "2. Run Merge Sort\n";
+		std::cout << "3. Run Quick Sort\n";
+		std::cout << "4. Compare Algorithms\n";
+		std::cout << "5. View Results\n";
+		std::cout << "6. Run Full Benchmark (all data types and sizes)\n";
+		std::cout << "0. Exit\n";
+		if (data.getSize() > 0)
+			std::cout << "Current data set: " << DataSet::typeName(data.getType()) << ", " << data.getSize() << " elements\n";
 
-		int option;
-		std::cin >> option;
+		const int option = readInt("\nEnter choice: ", 0, 6);
+
+		if (option == 0)
+			break;
 
 		if (option == 1)
 		{
-			std::cout << "Select type of data set to sort:" << std::endl;
-			std::cout << "1: Data set of 100,000 random numbers" << std::endl;
-			std::cout << "2: Data set of 250,000 random numbers" << std::endl;
-			std::cout << "3: Data set of 500,000 random numbers" << std::endl;
-			std::cout << "4: Data set of 100,000 random numbers with many duplicates" << std::endl;
-			std::cout << "5: Data set of 250,000 random numbers with many duplicates" << std::endl;
-			std::cout << "6: Data set of 500,000 random numbers with many duplicates" << std::endl;
-			std::cout << "7: Ascending data" << std::endl;
-			std::cout << "8: Decending data" << std::endl;
-			std::cout << "9: Keep current data set" << std::endl;
-
-			int option2;
-			std::cin >> option2;
-			if (option2 == 1)
-			{
-				dataSet = unsortedData.randomNumbers();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout<<std::endl;
-
-			}
-			else if (option2 == 2)
-			{;
-				dataSet = unsortedData.randomNumbersMedium(); 
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 3)
-			{
-				dataSet = unsortedData.randomNumbersLarge();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 4)
-			{
-				dataSet = unsortedData.manyDuplicates();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 5)
-			{
-	
-				dataSet = unsortedData.manyDuplicatesMedium();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 6)
-			{
-				dataSet = unsortedData.manyDuplicatesLarge();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 7)
-			{
-				dataSet = unsortedData.alreadySorted();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 8)
-			{
-				dataSet = unsortedData.reverseSorted();
-				std::cout << "Data Set Generated" << std::endl;
-				std::cout << std::endl;
-			}
-			else if (option2 == 9)
-			{
-				std::cout << "No changes made to data set" << std::endl;
-				std::cout << std::endl;
-			}
-
+			generateMenu(data);
 		}
-		else if(option==2 && dataSet.size()>1)
+		else if (option == 5)
 		{
-			std::vector<int> quickSortData;
-			quickSortData = unsortedData.getDataSet();
-		
-			const auto stats=quickSortStats(quickSortData);
-
-			//Compare sorting algorithm to key
-			std::vector<int> dataKey = unsortedData.getDataKey();
-			bool flag = true;
-			for (int i = 0; i < quickSortData.size(); i++)
-			{
-				if (quickSortData[i] != dataKey[i])
-					flag = false;
-					
-				//std::cout << quickSortData[i] << std::endl; //Testing
-			}
-			if (flag==true)
-				std::cout << "Data sorted successfully using Quick Sort. Number of items sorted: " << dataSet.size() << std::endl;
-
+			printResultsTable(sessionResults);
 		}
-		else if (option == 2 && dataSet.size() < 1)
+		else if (option == 6)
 		{
-			std::cout << "No data set generated yet" << std::endl;
+			runFullBenchmark(data, sessionResults);
 		}
-		else if (option == 3 && dataSet.size()>1)
+		else if (data.getSize() < 2)
 		{
-			std::vector<int> mergeSortData;
-			mergeSortData = unsortedData.getDataSet();
-
-			const auto stats = mergeSort(mergeSortData);
-
-			//Compare sorting algorithm to key
-			std::vector<int> dataKey = unsortedData.getDataKey();
-			bool flag = true;
-			for (int i = 0; i < mergeSortData.size(); i++)
-			{
-				if (mergeSortData[i] != dataKey[i])
-					flag = false;
-					
-				//std::cout << mergeSortData[i] << std::endl; //Testing
-			}
-			if (flag==true)
-				std::cout << "Data sorted successfully using Merge Sort. Number of items sorted: " << dataSet.size() << std::endl;
-			
+			std::cout << "No data set generated yet. Choose 1 first.\n\n";
 		}
-		else if (option == 3 && dataSet.size() < 1)
+		else if (option == 2 || option == 3)
 		{
-			std::cout << "No data set generated yet" << std::endl;
+			const Algorithm algorithm = (option == 2) ? Algorithm::MergeSort : Algorithm::QuickSort;
+			auto results = runTrials(algorithm, data, 1);
+			printRunSummary(results);
+			saveResults(results, sessionResults);
 		}
-		else if (option == 0)
-			break;
+		else if (option == 4)
+		{
+			const int trials = readInt("Number of trials (1-20, default suggestion " + std::to_string(kDefaultTrials) + "): ", 1, 20);
+			auto results = runTrials(Algorithm::MergeSort, data, trials);
+			auto quick = runTrials(Algorithm::QuickSort, data, trials);
+			results.insert(results.end(), quick.begin(), quick.end());
+			printResultsTable(results);
+			saveResults(results, sessionResults);
+		}
 	}
 
+	return 0;
 }
-
