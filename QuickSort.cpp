@@ -14,9 +14,7 @@ void quickSort(std::vector<int>& unsorted, int low, int high, QuickSortStats& st
 
 int partition(std::vector<int>& unsorted, int low, int high, QuickSortStats& stats)
 {
-//Use random number for pivot to prevent stack overflow on already sorted data sets
-	std::random_device random;
-	std::mt19937 gen(random());
+	static std::mt19937 gen(std::random_device{}());
 	std::uniform_int_distribution<> range(low, high);
 	int randomIndex = range(gen);
 	int randomValue = unsorted[randomIndex];
@@ -28,7 +26,6 @@ int partition(std::vector<int>& unsorted, int low, int high, QuickSortStats& sta
 	int downIndex = high;
 	while (upIndex < downIndex)
 	{
-		//Increment up until up selects the first element greater than the pivot value, or up=end
 		for (int i = upIndex; i < high; i++)
 		{
 			stats.comparisons++;
@@ -36,7 +33,6 @@ int partition(std::vector<int>& unsorted, int low, int high, QuickSortStats& sta
 				break;
 			upIndex++;
 		}
-		//Decrement down until down selects the first element less than or equal to the pivot value or up=first.
 		for (int i = downIndex; i > low; i--)
 		{
 			stats.comparisons++;
@@ -54,7 +50,6 @@ int partition(std::vector<int>& unsorted, int low, int high, QuickSortStats& sta
 
 	}
 
-	//Up is to the left of down, so swap pivot value with down value
 	int newPivot = unsorted[downIndex];
 	unsorted[low] = newPivot;
 	unsorted[downIndex] = pivot;
